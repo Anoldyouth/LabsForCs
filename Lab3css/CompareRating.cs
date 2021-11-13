@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
 
-namespace Lab3css
+namespace Lab3cs
 {
     class CompareRating : IComparer<Article>
     {
