@@ -1,7 +1,7 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-
+using System.IO;
 
 namespace Lab4cs
 {
@@ -11,24 +11,44 @@ namespace Lab4cs
 
         static void Main(string[] args)
         {
-            KeySelector<String> selector = magazine => magazine.GetHashCode().ToString();
-            MagazineCollection<string> first = new MagazineCollection<string>(selector);
-            MagazineCollection<string> second = new MagazineCollection<string>(selector);
-            first.TitleOfCollection = "First collection";
-            second.TitleOfCollection = "Second collection";
+            var m = new Magazine("Not default", Frequency.Yearly, new DateTime(1970, 1, 1), 10);
+            m.AddArticles(new Article());
 
-            Listener listener = new Listener();
-            first.MagazinesChanged += listener.addEntry;
-            second.MagazinesChanged += listener.addEntry;
+            var mCopy = m.DeepCopy();
 
-            Magazine obj = new Magazine("test title", Frequency.Yearly, new DateTime(2020, 12, 03), 25);
-            first.AddDefaults(1);
-            first.AddMagazines(obj);
-            obj.Circulation = 35;
-            first.Replace(new Magazine(), new Magazine("title", Frequency.Yearly, new DateTime(2020, 12, 03), 25));
-            first.Replace(new Magazine(), new Magazine("try to change object", Frequency.Yearly, new DateTime(2020, 12, 03), 25));
+            Console.WriteLine("Enter filename: ");
+            string filename;
+            do
+            {
+                filename = Console.ReadLine();
+            } while (filename.Length < 1);
+            var fi = new FileInfo(filename);
+            if (fi.Exists)
+            {
+                mCopy.Load(filename);
+                Console.WriteLine("Loaded object:");
+                Console.WriteLine(mCopy);
+            }
+            else
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("There is no such file in this directory!");
+                fi.Create().Close();
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.WriteLine("File was created");
+                Console.ResetColor();
+            }
 
-            Console.WriteLine(listener.ToString());
+            mCopy.AddFromConsole();
+            mCopy.Save(filename);
+            Console.WriteLine(mCopy);
+
+            Magazine.Load(filename, mCopy);
+            Console.WriteLine("\nAdd one more article:");
+            mCopy.AddFromConsole();
+            Console.WriteLine("Final version:");
+            Console.WriteLine(mCopy);
+            Magazine.Save(filename, mCopy);
 
         }
     }
